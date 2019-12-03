@@ -1,0 +1,40 @@
+# depslib dependency file v1.0
+1575303238 source:c:\users\asus-pc\desktop\ludo\ludo\main.c
+	"Game.h"
+	"Player.h"
+	"Console.h"
+
+1574864296 c:\users\asus-pc\desktop\ludo\ludo\player.h
+	<stdio.h>
+	<stdbool.h>
+	<stdint.h>
+	<windows.h>
+
+1574864622 source:c:\users\asus-pc\desktop\ludo\ludo\player.c
+	"Player.h"
+
+1575289894 source:c:\users\asus-pc\desktop\ludo\ludo\game.c
+	"Game.h"
+
+1575289891 c:\users\asus-pc\desktop\ludo\ludo\game.h
+	<time.h>
+	<stdlib.h>
+	"Player.h"
+
+1574408242 source:c:\users\asus-pc\desktop\ludo\ludo\grid.c
+	"Grid.h"
+
+1574362446 c:\users\asus-pc\desktop\ludo\ludo\grid.h
+	<stdio.h>
+	<stdint.h>
+
+1575301893 source:c:\users\asus-pc\desktop\ludo\ludo\console.c
+	"Console.h"
+
+1575301303 c:\users\asus-pc\desktop\ludo\ludo\console.h
+	<windows.h>
+	<stdio.h>
+	<stdbool.h>
+	<stdint.h>
+	<stdlib.h>
+
