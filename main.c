@@ -145,6 +145,11 @@ Game_MoveStatus RollDiceProc (uint8_t* roll, int8_t* rollNb)
     // Waits until spacebar is pressed
     GetInput(KeyEvent, &clickCoord);
 
+    /* DEBUG
+    scanf("%d", &roll[*rollNb]);
+    while (getchar() != '\n');
+    */
+
     roll[*rollNb] = Game_RollDice();
 
     sprintf(buffer, "Dice Score = %d", roll[*rollNb]);
@@ -266,6 +271,7 @@ void StartGame()
               {
                  selectedRoll = roll[j];
                  roll[j] = 0;
+                 unplayedRollNb--;
                  isSelectionValid = true;
                  Sleep(2000);
               }
@@ -408,7 +414,7 @@ void StartGame()
 
             oldRollNb = rollNb;
             move = RollDiceProc(roll, &rollNb);
-            unplayedRollNb = unplayedRollNb + rollNb  - oldRollNb - 1;
+            unplayedRollNb = unplayedRollNb + rollNb  - oldRollNb;
           }
         }
       }
