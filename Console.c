@@ -89,28 +89,14 @@ static void Console_DrawGrid (COORD originPos, uint8_t rows, uint8_t columns)
   for (rowIndex = 0; rowIndex < rows; rowIndex++)
   {
     for (columnIndex = 0; columnIndex < columns; columnIndex++)
-    {
-//      if (columnIndex == 1 && rowIndex >= 1)
-//        SetConsoleTextAttribute(HConsole, COLOUR_YELLOW);
-
       printf("~~~");
-
-//      SetConsoleTextAttribute(HConsole, COLOUR_WHITE);
-    }
 
     // Translate the cursor one unit downwards
     currPos.Y ++;
     SetConsoleCursorPosition(HConsole, currPos);
 
     for (columnIndex = 0; columnIndex < columns; columnIndex++)
-    {
-//      if (columnIndex == 1 && rowIndex >= 1)
-//        SetConsoleTextAttribute(HConsole, COLOUR_YELLOW);
-
       printf("|  ");
-
-//      SetConsoleTextAttribute(HConsole, COLOUR_WHITE);
-    }
 
     printf("|");
 
