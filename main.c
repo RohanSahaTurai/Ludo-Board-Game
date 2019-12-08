@@ -154,7 +154,6 @@ Game_MoveStatus RollDiceProc (uint8_t* roll, int8_t* rollNb)
 
     sprintf(buffer, "Dice Score = %d", roll[*rollNb]);
     Console_DisplayInfo(buffer, false, COLOUR_WHITE);
-    Sleep(1000);
 
     if (roll[*rollNb] != 6)
     {
@@ -247,18 +246,11 @@ void StartGame()
         if (move == MOVE_END)
           continue;
 
-        // if only one roll, select the only score (1st one)
-        if (rollNb == 1)
-        {
-           selectedRoll = roll[0];
-           roll[0] = 0;
-        }
-
         // reset the input validation flag
         isSelectionValid = false;
 
         // Select and validate a score
-        while (rollNb > 1 && !isSelectionValid)
+        while (!isSelectionValid)
         {
           sprintf(buffer, "Dice Scores-> ");
           Console_DisplayInfo(buffer, false, COLOUR_WHITE);
@@ -270,6 +262,7 @@ void StartGame()
             {
               printf("%d ", roll[j]);
 
+              // if there is only one score left, find and select that role
               if (unplayedRollNb == 1)
               {
                  selectedRoll = roll[j];
@@ -358,6 +351,7 @@ void StartGame()
             {
               sprintf(buffer, "Invalid Move!");
               Console_DisplayInfo(buffer, false, COLOUR_WHITE);
+              Sleep(2000);
             }
           }
 
