@@ -103,21 +103,6 @@ static void Game_UpdatePosition (token_t* token, const uint8_t playerNb, const u
       token->position = currPosition + diceNb;
 }
 
-
-/*******************************************************************************
- * Function to UPDATE THE SCORECARD
-*******************************************************************************/
-static void Game_UpdateScorecard (player_t* player, const uint8_t playerNb)
-{
-  uint8_t i, max = 0;
-
-  for (i = 0; i < NbPlayerInGame; i++)
-    if (player[i].scorecard >= max)
-      max = player[i].scorecard;
-
-  player[playerNb].scorecard = max + 1;
-}
-
 /*******************************************************************************
  * Function to UPDATE STEPS MOVED
 *******************************************************************************/
@@ -227,6 +212,7 @@ static inline void Game_TokenWin (token_t* token)
 static bool Game_PlayerWin (player_t* player, uint8_t playerNb)
 {
   uint8_t i;
+  static uint8_t currentScorecard = 0;
 
   // Checks if all the tokens of the current player has won
   for (i = 0; i < TOKEN_NUM; i++)
@@ -236,7 +222,7 @@ static bool Game_PlayerWin (player_t* player, uint8_t playerNb)
 
   // if all the tokens have won, the player has won
   // therefore, update scorecard
-  Game_UpdateScorecard(player, playerNb);
+  player[playerNb].scorecard = ++currentScorecard;
 
   return true;
 }
@@ -254,7 +240,7 @@ void inline Game_UpdateCoord (token_t* token, COORD newCoord)
 *******************************************************************************/
 Game_MoveStatus Game_PlayerMove (player_t* player, uint8_t playerNb, uint8_t tokenNb, uint8_t diceNb)
 {
-    int8_t stepsMoved;
+    int8_t stepsMoved, i;
     bool isSafe;
     static uint8_t nbPlayerWon = 0;
 
@@ -286,7 +272,16 @@ Game_MoveStatus Game_PlayerMove (player_t* player, uint8_t playerNb, uint8_t tok
 
         // Check if the game has ended
         if (nbPlayerWon == (NbPlayerInGame - 1))
-          return GAME_ENDED;
+        {
+          // Update the scorecard of the last position player
+          for (i = 0; i < NbPlayerInGame; i++)
+            // the scorecard of the last position is still zero
+            if (player[i].scorecard == 0)
+             {
+                player[i].scorecard = NbPlayerInGame;
+                return GAME_ENDED;
+             }
+        }
 
         else
           return PLAYER_WON;
