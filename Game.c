@@ -236,9 +236,39 @@ void inline Game_UpdateCoord (token_t* token, COORD newCoord)
 }
 
 /*******************************************************************************
+ * Function to check if there is any valid move
+ * First checks if any token can be moved and returns
+ * Else checks if the score is 6 and if new token can be entered
+ * Otherwise, no valid move
+*******************************************************************************/
+VALIDMOVETYPE inline Game_CheckValidMoveAvailable (token_t* token, uint8_t selectedRoll)
+{
+  uint8_t i;
+
+  // Iterate through all the tokens and check if valid move is available
+  for (i = 0; i < TOKEN_NUM; i++)
+    // if at least one token has a valid move
+    if (token[i].steps_moved != -1 &&
+        (WIN_STEPS_MOVED - token[i].steps_moved) >= selectedRoll)
+    {
+      return MOVE_TOKEN;
+    }
+
+  // if there is no valid step, check if tokens can be entered if the score is 6
+  if (selectedRoll == 6)
+  {
+    for (i = 0; i < TOKEN_NUM; i++)
+      if (token[i].steps_moved == -1)
+        return ENTER_TOKEN_ONLY;
+  }
+
+  return NO_VALID_MOVE;
+}
+
+/*******************************************************************************
  * Function to RUN ONE MOVE OF PLAYER
 *******************************************************************************/
-Game_MoveStatus Game_PlayerMove (player_t* player, uint8_t playerNb, uint8_t tokenNb, uint8_t diceNb)
+MOVESTATUS Game_PlayerMove (player_t* player, uint8_t playerNb, uint8_t tokenNb, uint8_t diceNb)
 {
     int8_t stepsMoved, i;
     bool isSafe;
@@ -278,8 +308,8 @@ Game_MoveStatus Game_PlayerMove (player_t* player, uint8_t playerNb, uint8_t tok
             // the scorecard of the last position is still zero
             if (player[i].scorecard == 0)
              {
-                player[i].scorecard = NbPlayerInGame;
-                return GAME_ENDED;
+              player[i].scorecard = NbPlayerInGame;
+              return GAME_ENDED;
              }
         }
 

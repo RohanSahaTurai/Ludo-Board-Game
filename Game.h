@@ -34,7 +34,15 @@ typedef enum
   TOKEN_ELIMINATED,
   GAME_ENDED
 
-}Game_MoveStatus;
+}MOVESTATUS;
+
+typedef enum
+{
+  ENTER_TOKEN_ONLY,
+  MOVE_TOKEN,
+  NO_VALID_MOVE
+
+}VALIDMOVETYPE;
 
 /*******************************************************************************
  * Function Prototype
@@ -47,7 +55,9 @@ void Game_UpdateCoord (token_t* token, COORD newCoord);
 
 uint8_t Game_GetTokenStat (const player_t player, uint8_t* NbEliminated, uint8_t* NbWon);
 
-Game_MoveStatus Game_PlayerMove (player_t* player, uint8_t playerNb, uint8_t tokenNb, uint8_t diceNb);
+VALIDMOVETYPE Game_CheckValidMoveAvailable (token_t* token, uint8_t selectedRoll);
+
+MOVESTATUS Game_PlayerMove (player_t* player, uint8_t playerNb, uint8_t tokenNb, uint8_t diceNb);
 
 #endif // GAME_H
 

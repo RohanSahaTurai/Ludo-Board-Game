@@ -280,14 +280,6 @@ COORD Console_DisplayToken (int8_t position, COORD oldCoord, WORD attrib)
 
     SetConsoleCursorPosition(HConsole, currCoord);
     printf("O");
-
-    //Check if the token has just entered the game
-    if (oldCoord.X != PosToCoord[99].X && oldCoord.Y != PosToCoord[99].Y)
-    {
-      // Clear the old position
-      SetConsoleCursorPosition(HConsole, oldCoord);
-      printf(" ");
-    }
   }
 
   else
@@ -315,8 +307,13 @@ COORD Console_DisplayToken (int8_t position, COORD oldCoord, WORD attrib)
 
     else
       printf("%c", readChar + 1);
+  }
 
-    /* Clear the previous cell */
+  /* Clear the previous cell */
+
+  //Check if the token has just entered the game
+  if (oldCoord.X != PosToCoord[99].X && oldCoord.Y != PosToCoord[99].Y)
+  {
     ReadConsoleOutputCharacter(HConsole, &readChar, 1, oldCoord, &nbChar);
 
     SetConsoleCursorPosition(HConsole, oldCoord);
