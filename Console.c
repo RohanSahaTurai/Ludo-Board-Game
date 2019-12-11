@@ -339,6 +339,10 @@ COORD Console_DisplayToken (int8_t position, COORD oldCoord, WORD attrib)
 *********************************************************************/
 bool Console_Init()
 {
+  HWND hWnd = GetConsoleWindow();
+
+  ShowWindow(hWnd, SW_MAXIMIZE);
+
   HConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
   // Get the standard input handle
