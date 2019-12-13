@@ -215,6 +215,27 @@ void Console_DisplayInfo(char* buffer, bool clearBox, DWORD attrib)
   {
     // New line
     pos.Y++;
+
+    //wrap and clear the box if the end of box is reached
+    if (pos.Y == 32)
+    {
+      //pause for a while
+      Sleep(1500);
+
+      uint8_t i;
+
+      // Clear the box (except the first line.
+      for (pos.Y = 2; pos.Y <= 31; pos.Y++)
+      {
+        SetConsoleCursorPosition(HConsole, pos);
+
+        for (i = 0; i < 37; i++)
+          printf(" ");
+      }
+
+      pos.Y = 2;
+    }
+
     SetConsoleCursorPosition(HConsole, pos);
 
     // Set the color
