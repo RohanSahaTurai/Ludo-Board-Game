@@ -105,7 +105,7 @@ int8_t GetSingleTokenNb (const player_t player)
 /*******************************************************************************
  * Function to ENTER A NEW TOKEN
 *******************************************************************************/
-void EnterNewTokenProc(player_t* player, uint8_t playerNb)
+MOVESTATUS EnterNewTokenProc(player_t* player, uint8_t playerNb)
 {
   COORD newCoord;
   uint8_t tokenNb;
@@ -125,12 +125,14 @@ void EnterNewTokenProc(player_t* player, uint8_t playerNb)
  sprintf(buffer, "New Token Has Been Entered!");
  Console_DisplayInfo(buffer, false, COLOUR_WHITE);
  Sleep(1500);
+
+ return MOVE_END;
 }
 
 /*******************************************************************************
  * Function to ROLL THE DICE
 *******************************************************************************/
-Game_MoveStatus RollDiceProc (uint8_t* roll, int8_t* rollNb)
+MOVESTATUS RollDiceProc (uint8_t* roll, int8_t* rollNb)
 {
   char buffer[128];
   COORD clickCoord;
@@ -145,11 +147,15 @@ Game_MoveStatus RollDiceProc (uint8_t* roll, int8_t* rollNb)
     // Waits until spacebar is pressed
     GetInput(KeyEvent, &clickCoord);
 
+    /* DEBUG
+    scanf("%d", &roll[*rollNb]);
+    while (getchar() != '\n');
+    */
+
     roll[*rollNb] = Game_RollDice();
 
     sprintf(buffer, "Dice Score = %d", roll[*rollNb]);
     Console_DisplayInfo(buffer, false, COLOUR_WHITE);
-    Sleep(1000);
 
     if (roll[*rollNb] != 6)
     {
@@ -179,16 +185,16 @@ Game_MoveStatus RollDiceProc (uint8_t* roll, int8_t* rollNb)
 *******************************************************************************/
 void StartGame()
 {
-  uint8_t i, j;
   char buffer[128];
   token_t* currToken;
   bool isSelectionValid;
   int selectedRoll, input;
   COORD newCoord, clickCoord;
-  Game_MoveStatus move = MOVE_END;
-  uint8_t roll[15] = {0}, playerNb = 0;
-  uint8_t nbTokenEliminated, nbTokenWon, nbTokenInGame;
+  MOVESTATUS move = MOVE_END;
+  VALIDMOVETYPE validMove;
   int8_t tokenNb = -1, rollNb, unplayedRollNb, oldRollNb;
+  uint8_t nbTokenEliminated, nbTokenWon, nbTokenInGame,
+          roll[15] = {0}, playerNb = 0, i, j;
 
   srand(time(NULL));
 
@@ -223,34 +229,30 @@ void StartGame()
         //reset the move status
         move = MOVE_PROCEED;
 
-        // If there is no token in game, wait for a 6 to enter a token
-        if (roll[0] == 6 && nbTokenInGame == 0)
+        // if there is no token in the game, wait for a six to enter a token
+        // iterate through all the rolls and check if there is a six
+        for (j = 0; j < rollNb && nbTokenInGame == 0; j++)
         {
-          EnterNewTokenProc(player, playerNb);
+          if (roll[j] == 6)
+          {
+            move = EnterNewTokenProc(player, playerNb);
 
-          roll[0] = 0;
-          move = MOVE_END;
-          unplayedRollNb--;  //one roll score has already been used
-          nbTokenInGame++;
-          nbTokenEliminated--;
+            roll[j] = 0;
+            unplayedRollNb--;  //one roll score has already been used
+            nbTokenInGame++;
+            nbTokenEliminated--;
+          }
         }
 
         // If the move has ended, skip all the following instructions
         if (move == MOVE_END)
           continue;
 
-        // if only one roll, select the only score (1st one)
-        if (rollNb == 1)
-        {
-           selectedRoll = roll[0];
-           roll[0] = 0;
-        }
-
         // reset the input validation flag
         isSelectionValid = false;
 
         // Select and validate a score
-        while (rollNb > 1 && !isSelectionValid)
+        while (!isSelectionValid)
         {
           sprintf(buffer, "Dice Scores-> ");
           Console_DisplayInfo(buffer, false, COLOUR_WHITE);
@@ -262,10 +264,12 @@ void StartGame()
             {
               printf("%d ", roll[j]);
 
+              // if there is only one score left, find and select that role
               if (unplayedRollNb == 1)
               {
                  selectedRoll = roll[j];
                  roll[j] = 0;
+                 unplayedRollNb--;
                  isSelectionValid = true;
                  Sleep(2000);
               }
@@ -297,6 +301,17 @@ void StartGame()
           }
         }
 
+        // Check if there is any valid for the selected roll
+        validMove = Game_CheckValidMoveAvailable(player[playerNb].token, selectedRoll);
+
+        if (validMove == NO_VALID_MOVE)
+        {
+          sprintf(buffer, "No Move Available!");
+          Console_DisplayInfo(buffer, false, COLOUR_WHITE);
+          Sleep(2000);
+          continue;     // skip all the following instruction
+        }
+
         // reset the input validation flag
         isSelectionValid = false;
 
@@ -304,12 +319,20 @@ void StartGame()
         // or move a token, given there is a token to be entered
         while (selectedRoll == 6 && nbTokenEliminated > 0 && isSelectionValid == false)
         {
-          sprintf(buffer, "Choice: 1)Enter Token 2)Move Token");
-          Console_DisplayInfo(buffer, false, COLOUR_WHITE);
-          sprintf(buffer, "Input: ");
-          Console_DisplayInfo(buffer, false, COLOUR_WHITE);
+          // if the only valid move is to enter a token, then don't ask the user
+          // select input = 1 to enter a token
+          if (validMove == ENTER_TOKEN_ONLY)
+            input = 1;
 
-          scanf("%d", &input);
+          else
+          {
+            sprintf(buffer, "Choice: 1)Enter Token 2)Move Token");
+            Console_DisplayInfo(buffer, false, COLOUR_WHITE);
+            sprintf(buffer, "Input: ");
+            Console_DisplayInfo(buffer, false, COLOUR_WHITE);
+
+            scanf("%d", &input);
+          }
 
           // assume the input is valid
           isSelectionValid = true;
@@ -317,10 +340,9 @@ void StartGame()
           switch (input)
           {
             case 1:
-              EnterNewTokenProc(player, playerNb);
+              move = EnterNewTokenProc(player, playerNb);
               nbTokenInGame++;
               nbTokenEliminated--;
-              move = MOVE_END;
               break;
 
             case 2:
@@ -334,6 +356,8 @@ void StartGame()
 
         }
 
+        /* Select the token and play the move */
+
         if (nbTokenInGame && move == MOVE_PROCEED)
         {
           // If only one token in game, select that token
@@ -343,11 +367,6 @@ void StartGame()
 
             move = Game_PlayerMove(player, playerNb, tokenNb, selectedRoll);
 
-            if (move == MOVE_OUTOFSTEPS)
-            {
-              sprintf(buffer, "Invalid Move!");
-              Console_DisplayInfo(buffer, false, COLOUR_WHITE);
-            }
           }
 
           // If  more than one token in game, then get the user's input
@@ -380,14 +399,11 @@ void StartGame()
 
           currToken = &(player[playerNb].token[tokenNb]);
 
-          if (move != MOVE_OUTOFSTEPS)
-          {
-            newCoord = Console_DisplayToken(currToken->position,
-                                            currToken->coord,
-                                            player[playerNb].colorAttrib);
+          newCoord = Console_DisplayToken(currToken->position,
+                                          currToken->coord,
+                                          player[playerNb].colorAttrib);
 
-            Game_UpdateCoord(currToken, newCoord);
-          }
+          Game_UpdateCoord(currToken, newCoord);
 
           // If the player eliminates another token or wins, roll the dice another time
           if (move == TOKEN_WON || move == TOKEN_ELIMINATED)
@@ -408,7 +424,15 @@ void StartGame()
 
             oldRollNb = rollNb;
             move = RollDiceProc(roll, &rollNb);
-            unplayedRollNb = unplayedRollNb + rollNb  - oldRollNb - 1;
+            unplayedRollNb = unplayedRollNb + rollNb  - oldRollNb;
+          }
+
+          // Check if the player has won
+          else if (move == PLAYER_WON)
+          {
+            sprintf(buffer, "Congratulations Player %d!", playerNb + 1);
+            Console_DisplayInfo(buffer, false, player[playerNb].colorAttrib);
+            Sleep(3000);
           }
         }
       }
@@ -421,15 +445,24 @@ void StartGame()
       playerNb = 0;
   }
 
-  // playerNb is already incremented, wrap playerNb
-  if (playerNb == 0)
-    playerNb = NbPlayerInGame - 1;
+  // If the game has ended, print the scorecard
+  sprintf(buffer, "Scorecard:");
+  Console_DisplayInfo(buffer, true, COLOUR_WHITE);
 
-  sprintf(buffer, "Congratulations Player %d!", playerNb);
-  Console_DisplayInfo(buffer, true, player[playerNb].colorAttrib);
+  sprintf(buffer, "Name         Position");
+  Console_DisplayInfo(buffer, false, COLOUR_WHITE);
+
+  sprintf(buffer, "----------------------");
+  Console_DisplayInfo(buffer, false, COLOUR_WHITE);
+
+  for (i = 0; i < NbPlayerInGame; i++)
+  {
+    sprintf(buffer, "Player %d  ->  %d", i + 1, player[i].scorecard);
+    Console_DisplayInfo(buffer, false, player[i].colorAttrib);
+  }
 
   sprintf(buffer, "Press Spacebar to exit...");
-  Console_DisplayInfo(buffer, false, player[playerNb].colorAttrib);
+  Console_DisplayInfo(buffer, false, COLOUR_WHITE);
 
   GetInput(KeyEvent, &clickCoord);
 }
@@ -441,6 +474,7 @@ int main(void)
 {
   char buffer[128];
   int input = 0;
+  COORD endCoord = {30,30};
 
   Console_Init();
 
@@ -472,6 +506,8 @@ int main(void)
   Sleep(3000);
 
   StartGame();
+
+  SetConsoleCursorPosition(HConsole, endCoord);
 
   return 0;
 }

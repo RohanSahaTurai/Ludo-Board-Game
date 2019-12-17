@@ -114,11 +114,22 @@ static void Console_DrawGrid (COORD originPos, uint8_t rows, uint8_t columns)
 *********************************************************************/
 void Console_DrawBoard(void)
 {
+  DWORD nbWritten;
+  COORD coord;
+
   COORD pos = {0,0};
   Console_DrawRect(pos, 13, 10, COLOUR_GREEN);
 
   pos.X = 20;
   Console_DrawGrid(pos, 6, 3);
+
+  // Colour the finish track
+  for (coord.X = 23, coord.Y = 2; coord.Y <= 12; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_YELLOW, 4, coord, &nbWritten);
+
+  // Colour the start cell
+  for (coord.X = 27, coord.Y = 2; coord.Y <= 4; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_YELLOW, 3, coord, &nbWritten);
 
   pos.X = 31;
   Console_DrawRect(pos, 13, 10, COLOUR_YELLOW);
@@ -128,11 +139,28 @@ void Console_DrawBoard(void)
   pos.Y = 13;
   Console_DrawGrid(pos, 3, 6);
 
+  // Colour the finish track
+  for (coord.X = 3, coord.Y = 15; coord.Y <= 17 ; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_GREEN, 16, coord,&nbWritten);
+
+  // Colour the start cell
+  for (coord.X = 3, coord.Y = 13; coord.Y <= 14; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_GREEN, 4, coord, &nbWritten);
+
   pos.X = 20;
   Console_DrawRect(pos, 7, 5, COLOUR_WHITE);
 
   pos.X = 31;
   Console_DrawGrid(pos, 3, 6);
+
+  // Colour the finish track
+  for (coord.X = 31, coord.Y = 15; coord.Y <= 17 ; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_BLUE, 16, coord,&nbWritten);
+
+  // Colour the start cell
+  for (coord.X = 43, coord.Y = 18; coord.Y <= 19; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_BLUE, 4, coord, &nbWritten);
+
 
   /******************************************/
   pos.X = 0;
@@ -141,6 +169,14 @@ void Console_DrawBoard(void)
 
   pos.X = 20;
   Console_DrawGrid(pos, 6, 3);
+
+  // Colour the finish track
+  for (coord.X = 23, coord.Y = 20; coord.Y <= 30 ; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_RED, 4, coord,&nbWritten);
+
+  // Colour the start cell
+  for (coord.X = 20, coord.Y = 28; coord.Y <= 30; coord.Y++)
+    FillConsoleOutputAttribute(HConsole, COLOUR_RED, 3, coord, &nbWritten);
 
   pos.X = 31;
   Console_DrawRect(pos, 13, 10, COLOUR_BLUE);
@@ -179,6 +215,27 @@ void Console_DisplayInfo(char* buffer, bool clearBox, DWORD attrib)
   {
     // New line
     pos.Y++;
+
+    //wrap and clear the box if the end of box is reached
+    if (pos.Y == 32)
+    {
+      //pause for a while
+      Sleep(1500);
+
+      uint8_t i;
+
+      // Clear the box (except the first line.
+      for (pos.Y = 2; pos.Y <= 31; pos.Y++)
+      {
+        SetConsoleCursorPosition(HConsole, pos);
+
+        for (i = 0; i < 37; i++)
+          printf(" ");
+      }
+
+      pos.Y = 2;
+    }
+
     SetConsoleCursorPosition(HConsole, pos);
 
     // Set the color
@@ -244,14 +301,6 @@ COORD Console_DisplayToken (int8_t position, COORD oldCoord, WORD attrib)
 
     SetConsoleCursorPosition(HConsole, currCoord);
     printf("O");
-
-    //Check if the token has just entered the game
-    if (oldCoord.X != PosToCoord[99].X && oldCoord.Y != PosToCoord[99].Y)
-    {
-      // Clear the old position
-      SetConsoleCursorPosition(HConsole, oldCoord);
-      printf(" ");
-    }
   }
 
   else
@@ -279,8 +328,13 @@ COORD Console_DisplayToken (int8_t position, COORD oldCoord, WORD attrib)
 
     else
       printf("%c", readChar + 1);
+  }
 
-    /* Clear the previous cell */
+  /* Clear the previous cell */
+
+  //Check if the token has just entered the game
+  if (oldCoord.X != PosToCoord[99].X && oldCoord.Y != PosToCoord[99].Y)
+  {
     ReadConsoleOutputCharacter(HConsole, &readChar, 1, oldCoord, &nbChar);
 
     SetConsoleCursorPosition(HConsole, oldCoord);
@@ -306,6 +360,10 @@ COORD Console_DisplayToken (int8_t position, COORD oldCoord, WORD attrib)
 *********************************************************************/
 bool Console_Init()
 {
+  HWND hWnd = GetConsoleWindow();
+
+  ShowWindow(hWnd, SW_MAXIMIZE);
+
   HConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
   // Get the standard input handle

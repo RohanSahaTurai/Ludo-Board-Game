@@ -38,3 +38,35 @@
 	<stdint.h>
 	<stdlib.h>
 
+1576263687 source:c:\users\asus-pc\desktop\ludo-board-game\console.c
+	"Console.h"
+
+1576263841 c:\users\asus-pc\desktop\ludo-board-game\console.h
+	<windows.h>
+	<stdio.h>
+	<stdbool.h>
+	<stdint.h>
+	<stdlib.h>
+
+1575876850 source:c:\users\asus-pc\desktop\ludo-board-game\game.c
+	"Game.h"
+
+1575876842 c:\users\asus-pc\desktop\ludo-board-game\game.h
+	<time.h>
+	<stdlib.h>
+	"Player.h"
+
+1575665395 c:\users\asus-pc\desktop\ludo-board-game\player.h
+	<stdio.h>
+	<stdbool.h>
+	<stdint.h>
+	<windows.h>
+
+1575665395 source:c:\users\asus-pc\desktop\ludo-board-game\player.c
+	"Player.h"
+
+1576263705 source:c:\users\asus-pc\desktop\ludo-board-game\main.c
+	"Game.h"
+	"Player.h"
+	"Console.h"
+

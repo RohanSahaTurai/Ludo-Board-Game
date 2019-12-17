@@ -1,6 +1,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
+#define _WIN32_WINNT 0x0500
+
 #include <windows.h>
 #include <stdio.h>
 #include <stdbool.h>
