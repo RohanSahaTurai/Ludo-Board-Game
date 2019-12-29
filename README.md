@@ -1,1 +1,1 @@
-# Ludo-Board-Game
+# Ludo - A windows console based ludo game
