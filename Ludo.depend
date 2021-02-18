@@ -70,3 +70,35 @@
 	"Player.h"
 	"Console.h"
 
+1576611425 source:c:\users\asus-pc\desktop\ludogame-console\console.c
+	"Console.h"
+
+1576611425 c:\users\asus-pc\desktop\ludogame-console\console.h
+	<windows.h>
+	<stdio.h>
+	<stdbool.h>
+	<stdint.h>
+	<stdlib.h>
+
+1576611425 source:c:\users\asus-pc\desktop\ludogame-console\game.c
+	"Game.h"
+
+1576611425 c:\users\asus-pc\desktop\ludogame-console\game.h
+	<time.h>
+	<stdlib.h>
+	"Player.h"
+
+1575665395 c:\users\asus-pc\desktop\ludogame-console\player.h
+	<stdio.h>
+	<stdbool.h>
+	<stdint.h>
+	<windows.h>
+
+1576611425 source:c:\users\asus-pc\desktop\ludogame-console\main.c
+	"Game.h"
+	"Player.h"
+	"Console.h"
+
+1575665395 source:c:\users\asus-pc\desktop\ludogame-console\player.c
+	"Player.h"
+
